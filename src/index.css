@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-nature-50 text-nature-950 font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900;
+    @apply dark:bg-nature-950 dark:text-nature-50 dark:selection:bg-emerald-900 dark:selection:text-emerald-100;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm;
+    @apply dark:bg-nature-900/70 dark:border-nature-800/20;
+  }
+
+  .glass-dark {
+    @apply bg-nature-950/80 backdrop-blur-xl border border-white/10;
+    @apply dark:bg-nature-900/90 dark:border-nature-700/20;
+  }
+
+  .bento-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-sm rounded-[40px] p-8 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1;
+    @apply dark:bg-nature-900/70 dark:border-nature-800/20 dark:hover:shadow-emerald-400/10;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-nature-50 dark:bg-nature-900;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-nature-200 dark:bg-nature-700 rounded-full hover:bg-nature-300 dark:hover:bg-nature-600 transition-colors;
+  }
+}
+
+@layer utilities {
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite;
+  }
+  
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+  }
+  
+  .nature-gradient {
+    background: radial-gradient(circle at 50% 0%, #edefe2 0%, #f7f8f2 100%);
+  }
+
+  .dark .nature-gradient {
+    background: radial-gradient(circle at 50% 0%, #1b1e15 0%, #0a0b08 100%);
+  }
+  
+  .mesh-pattern {
+    background-image: 
+      linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #10b981, #3b82f6) border-box;
+    border: 2px solid transparent;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3),
+                0 0 40px rgba(16, 185, 129, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5),
+                0 0 60px rgba(16, 185, 129, 0.2);
+  }
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Global Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-nature-50 dark:bg-nature-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-nature-200 dark:bg-nature-700 rounded-full hover:bg-nature-300 dark:hover:bg-nature-600 transition-colors;
+}

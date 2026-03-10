@@ -1,0 +1,7 @@
+{
+  "name": "Internet of Nature: Global Mesh Intelligence v2.4.0",
+  "description": "The world's leading industrial-scale autonomous restoration protocol with secure user authentication. Harnessing global mesh intelligence to simulate, predict, and automate complex ecosystem restoration.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
