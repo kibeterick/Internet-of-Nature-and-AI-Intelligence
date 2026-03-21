@@ -2550,7 +2550,7 @@ const SimulationControl = ({
   );
 };
 
-const PredictionDashboard = ({ activeTab }: { activeTab: string }) => {
+const PredictionDashboard = () => {
   const [predictions, setPredictions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -2571,7 +2571,6 @@ const PredictionDashboard = ({ activeTab }: { activeTab: string }) => {
       </div>
       <div className="h-48 w-full">
         <ResponsiveContainer
-          key={activeTab}
           width="100%"
           height="100%"
           minWidth={0}
@@ -4446,7 +4445,7 @@ const AcousticMonitor = () => {
   );
 };
 
-const PollinatorActivity = ({ activeTab }: { activeTab: string }) => {
+const PollinatorActivity = () => {
   const data = [
     { hour: "06:00", bees: 10, butterflies: 5 },
     { hour: "09:00", bees: 45, butterflies: 20 },
@@ -4455,6 +4454,8 @@ const PollinatorActivity = ({ activeTab }: { activeTab: string }) => {
     { hour: "18:00", bees: 30, butterflies: 15 },
     { hour: "21:00", bees: 5, butterflies: 2 },
   ];
+
+  const maxValue = 80;
 
   return (
     <div className="glass p-8 rounded-[40px] space-y-6">
@@ -4469,43 +4470,26 @@ const PollinatorActivity = ({ activeTab }: { activeTab: string }) => {
           </p>
         </div>
       </div>
-      <div className="relative h-[250px] w-full overflow-hidden">
-        <ResponsiveContainer
-          key={activeTab}
-          width="100%"
-          height="100%"
-          minWidth={0}
-          minHeight={0}
-          debounce={50}
-        >
-          <BarChart data={data}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="#e5e7eb"
-            />
-            <XAxis
-              dataKey="hour"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: "#9ca3af" }}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: "#9ca3af" }}
-            />
-            <Tooltip
-              contentStyle={{
-                borderRadius: "16px",
-                border: "none",
-                boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-              }}
-            />
-            <Bar dataKey="bees" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="butterflies" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="relative h-[250px] w-full flex items-end justify-around gap-2 px-4">
+        {data.map((item, index) => (
+          <div key={index} className="flex-1 flex flex-col items-center gap-2">
+            <div className="w-full flex gap-1 items-end h-[180px]">
+              <div
+                className="flex-1 bg-amber-500 rounded-t transition-all hover:opacity-80"
+                style={{ height: `${(item.bees / maxValue) * 100}%` }}
+                title={`Bees: ${item.bees}`}
+              />
+              <div
+                className="flex-1 bg-blue-500 rounded-t transition-all hover:opacity-80"
+                style={{ height: `${(item.butterflies / maxValue) * 100}%` }}
+                title={`Butterflies: ${item.butterflies}`}
+              />
+            </div>
+            <span className="text-xs text-nature-400 font-medium">
+              {item.hour}
+            </span>
+          </div>
+        ))}
       </div>
       <div className="flex gap-4 justify-center">
         <div className="flex items-center gap-2 text-[10px] font-bold text-nature-400">
@@ -4555,90 +4539,14 @@ const RestorationGoal = () => (
   </div>
 );
 
-const IndustrialESGChart = ({ activeTab }: { activeTab: string }) => {
+const IndustrialESGChart = () => {
   const data = [
     { month: "Jan", compliance: 78, impact: 45 },
-    { month: "Feb", compliance: 82, impact: 48 },
-    { month: "Mar", compliance: 80, impact: 52 },
-    { month: "Apr", compliance: 85, impact: 50 },
-    { month: "May", compliance: 88, impact: 55 },
-    { month: "Jun", compliance: 92, impact: 58 },
-  ];
-
-  return (
-    <div className="glass p-8 rounded-[40px] space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <Factory size={20} className="text-orange-500" />
-            Global Industrial ESG Compliance
-          </h3>
-          <p className="text-nature-500 text-xs uppercase font-bold tracking-widest">
-            Aggregate Sector Performance
-          </p>
-        </div>
-      </div>
-      <div className="relative h-[250px] w-full overflow-hidden">
-        <ResponsiveContainer
-          key={activeTab}
-          width="100%"
-          height="100%"
-          minWidth={0}
-          minHeight={0}
-          debounce={50}
-        >
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorCompliance" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="#f3f4f6"
-            />
-            <XAxis
-              dataKey="month"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
-            />
-            <Tooltip
-              contentStyle={{
-                borderRadius: "20px",
-                border: "none",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="compliance"
-              stroke="#f59e0b"
-              fillOpacity={1}
-              fill="url(#colorCompliance)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-};
-
-const CarbonForecast = ({ activeTab }: { activeTab: string }) => {
-  const data = [
-    { year: "2026", value: 4.2 },
-    { year: "2027", value: 4.8 },
-    { year: "2028", value: 5.5 },
-    { year: "2029", value: 6.3 },
-    { year: "2030", value: 7.2 },
-    { year: "2031", value: 8.4 },
+    { month: "Feb", compliance: 82, impact: 52 },
+    { month: "Mar", compliance: 85, impact: 58 },
+    { month: "Apr", compliance: 88, impact: 65 },
+    { month: "May", compliance: 91, impact: 72 },
+    { month: "Jun", compliance: 94, impact: 78 },
   ];
 
   return (
@@ -4646,69 +4554,107 @@ const CarbonForecast = ({ activeTab }: { activeTab: string }) => {
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-2xl font-bold flex items-center gap-2">
-            <Leaf size={24} className="text-emerald-500" />
-            Carbon Sequestration Forecast
+            <Factory size={24} className="text-blue-500" />
+            ESG Compliance
           </h3>
           <p className="text-nature-500 text-sm">
-            Projected CO2 absorption (tons/year) based on current growth
+            Environmental, Social & Governance metrics
           </p>
         </div>
       </div>
-      <div className="relative h-[250px] w-full overflow-hidden">
-        <ResponsiveContainer
-          key={activeTab}
-          width="100%"
-          height="100%"
-          minWidth={0}
-          minHeight={0}
-          debounce={50}
-        >
-          <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorCarbon" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="#e5e7eb"
-            />
-            <XAxis
-              dataKey="year"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: "#9ca3af" }}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: "#9ca3af" }}
-            />
-            <Tooltip
-              contentStyle={{
-                borderRadius: "16px",
-                border: "none",
-                boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="#10b981"
-              fillOpacity={1}
-              fill="url(#colorCarbon)"
-              strokeWidth={3}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className="space-y-4">
+        {data.slice(-3).map((item, index) => (
+          <div key={index} className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-nature-600 font-medium">{item.month}</span>
+              <span className="text-nature-900 font-bold">
+                {item.compliance}%
+              </span>
+            </div>
+            <div className="h-3 bg-nature-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all"
+                style={{ width: `${item.compliance}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="text-center pt-4 border-t border-nature-100">
+        <p className="text-sm text-emerald-600 font-bold">
+          ↑ 16% improvement this quarter
+        </p>
       </div>
     </div>
   );
 };
 
-const PredictiveAnalytics = ({ activeTab }: { activeTab: string }) => {
+const CarbonForecast = () => {
+  const data = [
+    { year: "2026", value: 4.2 },
+    { year: "2027", value: 3.8 },
+    { year: "2028", value: 3.2 },
+    { year: "2029", value: 2.5 },
+    { year: "2030", value: 1.8 },
+  ];
+
+  const maxValue = 5;
+
+  return (
+    <div className="glass p-8 rounded-[40px] space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-2xl font-bold flex items-center gap-2">
+            <TrendingUp size={24} className="text-green-500" />
+            Carbon Forecast
+          </h3>
+          <p className="text-nature-500 text-sm">
+            Projected emissions reduction
+          </p>
+        </div>
+      </div>
+      <div className="relative h-[250px] w-full flex items-end justify-around gap-3 px-4 bg-gradient-to-t from-green-50/30 to-transparent rounded-2xl pt-4">
+        {data.map((item, index) => {
+          const heightPercent = (item.value / maxValue) * 100;
+          return (
+            <div
+              key={index}
+              className="flex-1 flex flex-col items-center gap-3 group"
+            >
+              <div className="relative w-full h-[180px] flex items-end">
+                <div
+                  className="w-full bg-gradient-to-t from-green-600 via-green-500 to-emerald-400 rounded-t-lg transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer relative overflow-hidden"
+                  style={{ height: `${heightPercent}%`, minHeight: "40px" }}
+                  title={`${item.year}: ${item.value}M tons CO₂`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-white/0 to-white/20" />
+                  <div className="absolute top-2 left-0 right-0 text-center">
+                    <span className="text-white font-bold text-sm drop-shadow-lg">
+                      {item.value}M
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <span className="text-sm text-nature-600 font-bold group-hover:text-green-600 transition-colors">
+                {item.year}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="text-center pt-4 border-t border-nature-100">
+        <p className="text-sm font-bold text-green-600">
+          🎯 Target: Net Zero by 2030
+        </p>
+        <p className="text-xs text-nature-500 mt-1">
+          57% reduction from 2026 baseline
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const PredictiveAnalytics = () => {
   const [showDetails, setShowDetails] = useState(false);
 
   const insights = [
@@ -4771,12 +4717,10 @@ const PredictiveAnalytics = ({ activeTab }: { activeTab: string }) => {
 
         <div className="relative h-[120px] min-h-[120px] w-full overflow-hidden">
           <ResponsiveContainer
-            key={activeTab}
             width="100%"
             height="100%"
             minWidth={0}
             minHeight={0}
-            debounce={50}
           >
             <BarChart
               data={PREDICTIVE_DATA}
@@ -5051,7 +4995,7 @@ const NatureChat = () => {
   );
 };
 
-const LiveDataStream = ({ activeTab }: { activeTab: string }) => {
+const LiveDataStream = () => {
   const [data, setData] = useState<{ time: string; value: number }[]>([]);
 
   useEffect(() => {
@@ -5106,12 +5050,10 @@ const LiveDataStream = ({ activeTab }: { activeTab: string }) => {
 
       <div className="relative h-[250px] min-h-[250px] w-full overflow-hidden">
         <ResponsiveContainer
-          key={activeTab}
           width="100%"
           height="100%"
           minWidth={0}
           minHeight={0}
-          debounce={50}
         >
           <AreaChart data={data}>
             <defs>
@@ -6314,9 +6256,9 @@ const AILab = () => {
   const [code, setCode] = useState(`// Internet of Nature - Custom Logic
 // Example: Calculate Biodiversity Trend
 const biodiversityTrend = (data) => {
-  const values = data.map(d => d.biodiversity);
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  return avg > 7.5 ? "Positive" : "Stable";
+ const values = data.map(d => d.biodiversity);
+ const avg = values.reduce((a, b) => a + b, 0) / values.length;
+ return avg > 7.5 ? "Positive" : "Stable";
 };
 
 console.log("Trend:", biodiversityTrend(MOCK_HISTORY));`);
@@ -6340,17 +6282,17 @@ console.log("Trend:", biodiversityTrend(MOCK_HISTORY));`);
       title: "Soil Moisture Alert",
       description:
         "Triggers an alert when soil moisture drops below threshold.",
-      code: `if (sensorData.moisture < 30) {\n  triggerAlert("Critical Soil Moisture", "Watering system activated.");\n}`,
+      code: `if (sensorData.moisture < 30) {\n triggerAlert("Critical Soil Moisture", "Watering system activated.");\n}`,
     },
     {
       title: "Biodiversity Index Calculator",
       description: "Calculates the Shannon Diversity Index for a given area.",
-      code: `const calculateShannon = (speciesCounts) => {\n  const total = speciesCounts.reduce((a, b) => a + b, 0);\n  return -speciesCounts.reduce((sum, count) => {\n    const p = count / total;\n    return sum + (p * Math.log(p));\n  }, 0);\n};`,
+      code: `const calculateShannon = (speciesCounts) => {\n const total = speciesCounts.reduce((a, b) => a + b, 0);\n return -speciesCounts.reduce((sum, count) => {\n const p = count / total;\n return sum + (p * Math.log(p));\n }, 0);\n};`,
     },
     {
       title: "IoT Node Heartbeat",
       description: "Checks if a sensor node is still online.",
-      code: `const checkStatus = (lastSeen) => {\n  const now = Date.now();\n  const diff = now - lastSeen;\n  return diff < 60000 ? "Online" : "Offline";\n};`,
+      code: `const checkStatus = (lastSeen) => {\n const now = Date.now();\n const diff = now - lastSeen;\n return diff < 60000 ? "Online" : "Offline";\n};`,
     },
   ];
 
@@ -6411,8 +6353,8 @@ console.log("Trend:", biodiversityTrend(MOCK_HISTORY));`);
       const model = ai.getGenerativeModel({ model: "gemini-pro" });
       const response =
         await model.generateContent(`Fix the errors in this code and explain the changes. This code might be related to the Internet of Nature or any other project.
-        Code:
-        ${debugCode}`);
+ Code:
+ ${debugCode}`);
       const result = await response.response;
       setDebugResult(result.text() || "No errors found or could not fix.");
     } catch (e) {
@@ -7406,32 +7348,34 @@ const RecognitionSection = () => (
             icon: GlobeIcon,
             name: "UN ECO-MESH",
             color: "text-blue-600",
-            url: "https://www.un.org/en/climatechange",
+            tab: "global",
+            description: "Global ecosystem monitoring network",
           },
           {
             icon: Shield,
             name: "GLOBAL SHIELD",
             color: "text-emerald-600",
-            url: "https://www.unep.org/",
+            tab: "analytics",
+            description: "Environmental protection analytics",
           },
           {
             icon: Factory,
             name: "INDUS-BIO",
             color: "text-orange-600",
-            url: "https://www.unido.org/",
+            tab: "industrial",
+            description: "Industrial biodiversity solutions",
           },
           {
             icon: Cpu,
             name: "NEURAL-NATURE",
             color: "text-purple-600",
-            url: "https://www.nature.com/",
+            tab: "ailab",
+            description: "AI-powered nature intelligence",
           },
         ].map((org, i) => (
-          <motion.a
+          <motion.button
             key={i}
-            href={org.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={() => setActiveTab(org.tab as any)}
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 + i * 0.1 }}
@@ -7446,14 +7390,19 @@ const RecognitionSection = () => (
             >
               <org.icon size={64} />
             </div>
-            <span className="font-bold text-lg tracking-tight text-nature-900 group-hover:text-emerald-600 transition-colors">
-              {org.name}
-            </span>
-            <ExternalLink
+            <div className="text-center">
+              <span className="font-bold text-lg tracking-tight text-nature-900 group-hover:text-emerald-600 transition-colors block">
+                {org.name}
+              </span>
+              <span className="text-xs text-nature-500 mt-1 block">
+                {org.description}
+              </span>
+            </div>
+            <ChevronRight
               size={16}
               className="text-nature-400 opacity-0 group-hover:opacity-100 transition-opacity"
             />
-          </motion.a>
+          </motion.button>
         ))}
       </motion.div>
 
@@ -9340,8 +9289,8 @@ import matplotlib.pyplot as plt
 
 # Load sample biodiversity data
 data = {
-    'species': ['Birds', 'Insects', 'Plants', 'Mammals'],
-    'count': [142, 856, 234, 45]
+ 'species': ['Birds', 'Insects', 'Plants', 'Mammals'],
+ 'count': [142, 856, 234, 45]
 }
 
 df = pd.DataFrame(data)
@@ -9389,11 +9338,11 @@ print("✓ Analysis complete! Your ecosystem is healthy.")
           `✓ Code executed successfully\n\n` +
           `Output:\n` +
           `================\n` +
-          `   species  count\n` +
-          `0    Birds    142\n` +
-          `1  Insects    856\n` +
-          `2   Plants    234\n` +
-          `3  Mammals     45\n\n` +
+          ` species count\n` +
+          `0 Birds 142\n` +
+          `1 Insects 856\n` +
+          `2 Plants 234\n` +
+          `3 Mammals 45\n\n` +
           `✓ Analysis complete! Your ecosystem is healthy.\n\n` +
           `Execution time: 1.24s\n` +
           `Memory used: 45.2 MB\n`,
@@ -9796,13 +9745,13 @@ $ ion mesh stream --region "amazon-basin" --type "biodiversity"
 [ION] Connected. Latency: 12ms
 [ION] Receiving data stream:
 {
-  "node_id": "AMZ-092",
-  "timestamp": "2026-03-04T07:52:00Z",
-  "metrics": {
-    "species_count": 142,
-    "carbon_sequestration": "4.2t/h",
-    "soil_health": 0.92
-  }
+ "node_id": "AMZ-092",
+ "timestamp": "2026-03-04T07:52:00Z",
+ "metrics": {
+ "species_count": 142,
+ "carbon_sequestration": "4.2t/h",
+ "soil_health": 0.92
+ }
 }`}</code>
           </pre>
         </div>
@@ -10919,16 +10868,16 @@ function AppContent() {
               {/* Dashboard Expansion: Real-time Data Visualizations */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="bento-card">
-                  <PollinatorActivity activeTab={activeTab} />
+                  <PollinatorActivity />
                 </div>
                 <div className="bento-card">
-                  <CarbonForecast activeTab={activeTab} />
+                  <CarbonForecast />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 bento-card">
-                  <IndustrialESGChart activeTab={activeTab} />
+                  <IndustrialESGChart />
                 </div>
                 <div className="bento-card">
                   <RestorationGoal />
@@ -11324,12 +11273,10 @@ function AppContent() {
 
                     <div className="relative h-[300px] min-h-[300px] w-full overflow-hidden">
                       <ResponsiveContainer
-                        key={activeTab}
                         width="100%"
                         height="100%"
                         minWidth={0}
                         minHeight={0}
-                        debounce={50}
                       >
                         <AreaChart data={MOCK_HISTORY}>
                           <defs>
@@ -11418,7 +11365,7 @@ function AppContent() {
                     </div>
                   </div>
 
-                  <LiveDataStream activeTab={activeTab} />
+                  <LiveDataStream />
                 </div>
 
                 <div className="space-y-8">
@@ -11862,15 +11809,15 @@ function AppContent() {
                     <pre>
                       {`// Initialize Project Genie SDK
 const genie = new ProjectGenie({
-  apiKey: process.env.GENIE_API_KEY,
-  region: 'global-mesh'
+ apiKey: process.env.GENIE_API_KEY,
+ region: 'global-mesh'
 });
 
 // Start real-time simulation
 await genie.simulate({
-  siteId: 'central-park-01',
-  duration: '100y',
-  parameters: ['biodiversity', 'carbon-offset']
+ siteId: 'central-park-01',
+ duration: '100y',
+ parameters: ['biodiversity', 'carbon-offset']
 });`}
                     </pre>
                   </div>
@@ -12323,7 +12270,9 @@ await genie.simulate({
                             </div>
                             <div>
                               <p className="text-2xl font-bold">
-                                {profile?.discoveries?.length || 0}
+                                {Array.isArray(profile?.discoveries)
+                                  ? profile.discoveries.length
+                                  : profile?.discoveries || 0}
                               </p>
                               <p className="text-xs text-nature-500 font-bold uppercase tracking-widest">
                                 Discoveries
@@ -12440,7 +12389,7 @@ await genie.simulate({
                   <MeshDataFeed data={meshData} />
                 </div>
                 <div className="space-y-8">
-                  <PredictionDashboard activeTab={activeTab} />
+                  <PredictionDashboard />
                   <div className="glass p-8 rounded-[40px] space-y-4">
                     <h4 className="font-bold text-lg">Network Health</h4>
                     <div className="space-y-4">
@@ -12522,17 +12471,17 @@ await genie.simulate({
               </div>
 
               <div className="glass p-8 rounded-[40px]">
-                <PredictiveAnalytics activeTab={activeTab} />
+                <PredictiveAnalytics />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                  <CarbonForecast activeTab={activeTab} />
+                  <CarbonForecast />
                 </div>
-                <IndustrialESGChart activeTab={activeTab} />
+                <IndustrialESGChart />
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <PollinatorActivity activeTab={activeTab} />
+                <PollinatorActivity />
               </div>
 
               <RecognitionSection />

@@ -21,6 +21,15 @@ interface Organism {
   energy: number;
   population: number;
   icon: string;
+  isPlanted?: boolean;
+  plantedAt?: number;
+}
+
+interface PlantingAnimation {
+  id: string;
+  x: number;
+  y: number;
+  progress: number;
 }
 
 const getOrganismColor = (type: string): string => {
@@ -42,6 +51,10 @@ export const Interactive3DEcosystem: React.FC = () => {
     null,
   );
   const [time, setTime] = useState(0);
+  const [isPlantingMode, setIsPlantingMode] = useState(false);
+  const [plantingAnimations, setPlantingAnimations] = useState<
+    PlantingAnimation[]
+  >([]);
 
   const initialOrganisms = useMemo<Organism[]>(
     () => [
@@ -135,6 +148,22 @@ export const Interactive3DEcosystem: React.FC = () => {
 
   const [organisms, setOrganisms] = useState<Organism[]>(initialOrganisms);
 
+  // Planting animation effect
+  useEffect(() => {
+    if (plantingAnimations.length === 0) return;
+
+    const interval = setInterval(() => {
+      setPlantingAnimations((prev) =>
+        prev
+          .map((anim) => ({ ...anim, progress: anim.progress + 0.05 }))
+          .filter((anim) => anim.progress < 1),
+      );
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [plantingAnimations.length]);
+
+  // Ecosystem simulation effect
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -235,6 +264,33 @@ export const Interactive3DEcosystem: React.FC = () => {
       );
     });
 
+    // Draw planting animations
+    plantingAnimations.forEach((anim) => {
+      const screenX = canvas.width / 2 + anim.x * zoom;
+      const screenY = canvas.height / 2 + anim.y * zoom;
+      const progress = anim.progress;
+
+      // Expanding circle animation
+      ctx.strokeStyle = `rgba(16, 185, 129, ${1 - progress})`;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(screenX, screenY, 20 * zoom * progress, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Particle effects
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const distance = 30 * zoom * progress;
+        const px = screenX + Math.cos(angle) * distance;
+        const py = screenY + Math.sin(angle) * distance;
+
+        ctx.fillStyle = `rgba(34, 197, 94, ${0.6 * (1 - progress)})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
     ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     ctx.fillRect(10, 10, 200, 100);
     ctx.fillStyle = "#fff";
@@ -248,12 +304,37 @@ export const Interactive3DEcosystem: React.FC = () => {
       70,
     );
     ctx.fillText(`Zoom: ${zoom.toFixed(1)}x`, 20, 90);
-  }, [organisms, zoom, time]);
+  }, [organisms, zoom, time, plantingAnimations]);
 
   const totalPopulation = organisms.reduce(
     (sum, org) => sum + org.population,
     0,
   );
+
+  const plantTree = (x: number, y: number) => {
+    const newTreeId = `tree-${Date.now()}`;
+    const newTree: Organism = {
+      id: newTreeId,
+      name: "Planted Tree",
+      type: "producer",
+      x,
+      y,
+      size: 12,
+      color: getOrganismColor("producer"),
+      energy: 80,
+      population: 1,
+      icon: "🌳",
+      isPlanted: true,
+      plantedAt: time,
+    };
+
+    setOrganisms((prev) => [...prev, newTree]);
+    setPlantingAnimations((prev) => [
+      ...prev,
+      { id: newTreeId, x, y, progress: 0 },
+    ]);
+    setIsPlantingMode(false);
+  };
 
   return (
     <div className="fixed bottom-40 right-8 z-40">
@@ -287,12 +368,19 @@ export const Interactive3DEcosystem: React.FC = () => {
                 ref={canvasRef}
                 width={650}
                 height={400}
-                className="w-full border-2 border-emerald-200 rounded-2xl bg-green-50 cursor-crosshair"
+                className={`w-full border-2 border-emerald-200 rounded-2xl bg-green-50 ${
+                  isPlantingMode ? "cursor-crosshair" : "cursor-pointer"
+                }`}
                 onClick={(e) => {
                   const rect = canvasRef.current?.getBoundingClientRect();
                   if (!rect) return;
                   const x = (e.clientX - rect.left - rect.width / 2) / zoom;
                   const y = (e.clientY - rect.top - rect.height / 2) / zoom;
+
+                  if (isPlantingMode) {
+                    plantTree(x, y);
+                    return;
+                  }
 
                   const clicked = organisms.find(
                     (org) => Math.hypot(org.x - x, org.y - y) < org.size * 1.5,
@@ -307,6 +395,16 @@ export const Interactive3DEcosystem: React.FC = () => {
                   className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
                 >
                   {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                </button>
+                <button
+                  onClick={() => setIsPlantingMode(!isPlantingMode)}
+                  className={`p-2 rounded-lg transition-colors font-semibold text-sm px-3 flex items-center gap-1 ${
+                    isPlantingMode
+                      ? "bg-green-600 text-white"
+                      : "bg-green-100 text-green-700 hover:bg-green-200"
+                  }`}
+                >
+                  🌱 Plant Tree
                 </button>
                 <button
                   onClick={() => setZoom(Math.min(3, zoom + 0.2))}
@@ -325,6 +423,7 @@ export const Interactive3DEcosystem: React.FC = () => {
                     setTime(0);
                     setOrganisms(initialOrganisms);
                     setSelectedOrganism(null);
+                    setIsPlantingMode(false);
                   }}
                   className="p-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors"
                 >

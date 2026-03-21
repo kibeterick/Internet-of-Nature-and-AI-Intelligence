@@ -41,17 +41,30 @@ const GlobalAIChat: React.FC<GlobalAIChatProps> = ({ meshData = [] }) => {
     setIsTyping(true);
 
     try {
-      const context = `Current system state: ${JSON.stringify(meshData)}. User is monitoring ecological data. If they ask for developer features, point them to the "AI Lab" or "Developer" section.`;
+      const context = `Current system state: ${JSON.stringify(meshData).substring(0, 500)}. User is monitoring ecological data.`;
 
       const aiText = await askNatureAI(textToSend, context);
+
       setMessages((prev) => [...prev, { role: "ai", text: aiText }]);
 
-      // Voice Synthesis
-      if (isVoiceActive && "speechSynthesis" in window) {
-        const utterance = new SpeechSynthesisUtterance(aiText);
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        window.speechSynthesis.speak(utterance);
+      // Voice Synthesis (only for successful responses without error symbols)
+      if (
+        isVoiceActive &&
+        "speechSynthesis" in window &&
+        !aiText.includes("⚠️")
+      ) {
+        try {
+          // Cancel any ongoing speech
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(aiText);
+          utterance.rate = 0.9;
+          utterance.pitch = 1.0;
+          utterance.volume = 0.8;
+          window.speechSynthesis.speak(utterance);
+        } catch (voiceError) {
+          console.error("Voice synthesis error:", voiceError);
+        }
       }
     } catch (error: any) {
       console.error("Chat error:", error);
@@ -59,7 +72,18 @@ const GlobalAIChat: React.FC<GlobalAIChatProps> = ({ meshData = [] }) => {
         ...prev,
         {
           role: "ai",
-          text: "Connection to Genie Core lost. Please check your network and API configuration.",
+          text: `⚠️ **Connection Error**
+
+I couldn't process your request right now.
+
+**What happened:** ${error.message || "Unknown error"}
+
+**Try this:**
+✓ Check your internet connection
+✓ Refresh the page
+✓ Try asking again in a moment
+
+I'm here to help once the connection is restored! 🌿`,
         },
       ]);
     } finally {

@@ -1,91 +1,191 @@
 import { GoogleGenerativeAI, Part } from "@google/generative-ai";
 
-// Use environment variables for security. Replace with your actual key if needed for testing.
+// Use environment variables for security
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 
 if (!API_KEY) {
-  console.error("VITE_GEMINI_API_KEY is not set. AI features will not work.");
+  console.warn(
+    "⚠️ VITE_GEMINI_API_KEY is not set. AI features will use fallback responses.",
+  );
 }
 
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+let genAI: GoogleGenerativeAI | null = null;
+
+try {
+  if (API_KEY) {
+    genAI = new GoogleGenerativeAI(API_KEY);
+  }
+} catch (error) {
+  console.error("Failed to initialize Gemini AI:", error);
+}
 
 // Helper to centralize model configuration with fallback models
 const getModel = (instruction?: string) => {
   if (!genAI) {
-    throw new Error("Gemini AI is not initialized. Please check your API key.");
+    throw new Error(
+      "Gemini AI is not initialized. Please check your API key in .env file.",
+    );
   }
 
-  // Use gemini-pro which is stable with v1beta API
-  return genAI.getGenerativeModel({
-    model: "gemini-pro",
-    systemInstruction: instruction,
-  });
+  try {
+    // Use gemini-1.5-flash for better performance and reliability
+    return genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: instruction,
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 2048,
+      },
+      safetySettings: [
+        {
+          category: "HARM_CATEGORY_HARASSMENT",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE",
+        },
+        {
+          category: "HARM_CATEGORY_HATE_SPEECH",
+          threshold: "BLOCK_MEDIUM_AND_ABOVE",
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("Error creating model:", error);
+    throw error;
+  }
 };
 
 export async function askNatureAI(prompt: string, context: string = "General") {
+  // Fallback response if AI is not available
+  if (!genAI || !API_KEY) {
+    return `🌿 **Genie AI (Offline Mode)**
+
+I'm currently running in offline mode. To enable full AI capabilities:
+
+1. Get a free API key from: https://makersuite.google.com/app/apikey
+2. Add it to your .env file as: VITE_GEMINI_API_KEY=your_key_here
+3. Restart the development server
+
+**Your question:** "${prompt}"
+
+**General guidance:** I can help you with environmental monitoring, species identification, ecosystem analysis, and conservation strategies. Please configure the API key to get personalized AI responses!`;
+  }
+
   try {
-    const systemInstruction = `You are the "Internet of Nature" AI assistant for Project Genie - the world's most advanced ecosystem intelligence platform.
+    const systemInstruction = `You are "Genie" 🌿 - the Internet of Nature AI assistant for the world's most advanced ecosystem intelligence platform.
     
 Context: ${context}
 
-You help users and industries understand:
-- Real-time environmental sensor data (temperature, humidity, air quality, soil conditions)
-- Biodiversity metrics and ecosystem health scores
+You help users understand:
+- Real-time environmental data (temperature, humidity, air quality, soil)
+- Biodiversity metrics and ecosystem health
 - Species identification and habitat analysis
-- Conservation strategies and ecological best practices
+- Conservation strategies and best practices
 - IoT sensor networks and environmental monitoring
 - Industrial ESG compliance and carbon tracking
 - Ecosystem simulations and predictive analytics
 
 Your responses should be:
-- Clear and actionable
-- Data-driven with specific numbers when possible
+- Clear, friendly, and actionable
+- Data-driven with specific numbers when available
 - Professional yet accessible
 - Helpful for both scientists and general users
 - Focused on practical solutions
+- Use emojis sparingly for emphasis 🌿
 
-If you don't have specific data, provide general ecological knowledge and suggest what data would be helpful.`;
+Always be encouraging and supportive of environmental conservation efforts!`;
 
     const model = getModel(systemInstruction);
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text();
+    const text = response.text();
+
+    if (!text || text.trim().length === 0) {
+      throw new Error("Empty response from AI");
+    }
+
+    return text;
   } catch (error: any) {
     console.error("Gemini API Error:", error);
 
-    // Detailed error handling
+    // Detailed error handling with helpful messages
     if (
       error.message?.includes("API key") ||
       error.message?.includes("API_KEY_INVALID")
     ) {
-      return "⚠️ AI service configuration error. Please verify your API key is correct and active. You can get a free API key from https://makersuite.google.com/app/apikey";
+      return `⚠️ **API Key Error**
+
+Your API key appears to be invalid. Please:
+
+1. Get a new API key from: https://makersuite.google.com/app/apikey
+2. Update your .env file: VITE_GEMINI_API_KEY=your_new_key
+3. Restart the server: npm run dev
+
+**Your question:** "${prompt}"`;
     }
+
     if (
       error.message?.includes("quota") ||
       error.message?.includes("RESOURCE_EXHAUSTED")
     ) {
-      return "⚠️ API quota exceeded. Please try again later or upgrade your API plan at https://console.cloud.google.com/";
+      return `⚠️ **API Quota Exceeded**
+
+You've reached your API usage limit. Options:
+
+1. Wait for quota reset (usually daily)
+2. Upgrade your plan at: https://console.cloud.google.com/
+3. Use a different API key
+
+**Your question:** "${prompt}"
+
+I'll be ready to help once the quota is restored!`;
     }
+
     if (
       error.message?.includes("404") ||
       error.message?.includes("not found")
     ) {
-      return "⚠️ Model not available. The AI service is being updated. Please try again in a few moments.";
+      return `⚠️ **Model Unavailable**
+
+The AI model is temporarily unavailable. This usually resolves quickly.
+
+**What you can do:**
+- Try again in a few moments
+- Check your internet connection
+- Verify the API key is active
+
+**Your question:** "${prompt}"`;
     }
+
     if (error.message?.includes("PERMISSION_DENIED")) {
-      return "⚠️ Permission denied. Please check that your API key has the necessary permissions enabled.";
+      return `⚠️ **Permission Denied**
+
+Your API key doesn't have the necessary permissions.
+
+**Fix this by:**
+1. Go to: https://console.cloud.google.com/
+2. Enable the "Generative Language API"
+3. Ensure your API key has proper permissions
+
+**Your question:** "${prompt}"`;
     }
 
     // Generic fallback with helpful information
-    return `⚠️ I'm having trouble connecting to the AI service right now. 
+    return `⚠️ **Connection Issue**
+
+I'm having trouble connecting right now.
 
 **Possible solutions:**
-1. Check your internet connection
-2. Verify your API key is valid
-3. Try again in a few moments
-4. Contact support if the issue persists
+✓ Check your internet connection
+✓ Verify API key in .env file
+✓ Try again in a few moments
+✓ Check browser console for details
 
-**Error details:** ${error.message || "Unknown error"}`;
+**Your question:** "${prompt}"
+
+**Error:** ${error.message || "Unknown error"}
+
+Don't worry - I'll be back online soon! 🌿`;
   }
 }
 
