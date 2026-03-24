@@ -28,7 +28,8 @@ const getModel = (instruction?: string) => {
   }
 
   try {
-    // Use gemini-1.5-flash for better performance and reliability
+    // Use gemini-1.5-flash for better compatibility and reliability
+    // This is the current stable model as of 2024
     return genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
       systemInstruction: instruction,
