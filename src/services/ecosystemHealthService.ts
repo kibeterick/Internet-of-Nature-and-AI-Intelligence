@@ -146,7 +146,7 @@ export async function analyzeEcosystemHealth(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const prompt = `Analyze this ecosystem health data and provide actionable insights:
 
 Area: ${areaData.name}

@@ -148,6 +148,7 @@ import { useSaveManager } from "./hooks/useSaveManager";
 import SpeciesIdentifier from "./components/SpeciesIdentifier";
 import Interactive3DEcosystem from "./components/Interactive3DEcosystem";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { WelcomeVideo, useWelcomeVideo } from "./components/WelcomeVideo";
 
 const geoUrl =
   "https://raw.githubusercontent.com/lotusms/world-map-data/master/world.json";
@@ -1973,7 +1974,7 @@ const AIInsights = ({ data }: { data: any[] }) => {
       const ai = new GoogleGenerativeAI(
         import.meta.env.VITE_GEMINI_API_KEY || "",
       );
-      const model = ai.getGenerativeModel({ model: "gemini-pro" });
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       const response = await model.generateContent(
         `Analyze this ecological sensor data and provide a professional, concise insight (max 2 sentences): ${JSON.stringify(data)}`,
       );
@@ -6331,7 +6332,7 @@ console.log("Trend:", biodiversityTrend(MOCK_HISTORY));`);
       const ai = new GoogleGenerativeAI(
         import.meta.env.VITE_GEMINI_API_KEY || "",
       );
-      const model = ai.getGenerativeModel({ model: "gemini-pro" });
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       const response = await model.generateContent(
         `Execute or simulate the following code in the context of the Internet of Nature system. Provide the expected console output and any ecological insights derived from the logic. Code: ${code}`,
       );
@@ -6350,7 +6351,7 @@ console.log("Trend:", biodiversityTrend(MOCK_HISTORY));`);
     setDebugResult(null);
     try {
       const ai = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      const model = ai.getGenerativeModel({ model: "gemini-pro" });
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       const response =
         await model.generateContent(`Fix the errors in this code and explain the changes. This code might be related to the Internet of Nature or any other project.
  Code:
@@ -10045,6 +10046,7 @@ function AppContent() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const { showVideo, closeVideo } = useWelcomeVideo();
   const [activeTab, setActiveTab] = useState<
     | "dashboard"
     | "species"
@@ -10377,7 +10379,20 @@ function AppContent() {
 
       {/* Navigation */}
       <nav className="px-6 py-8 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => {
+              setActiveTab("dashboard");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="p-3 bg-nature-100 hover:bg-nature-200 rounded-xl transition-all group"
+            title="Go to Homepage"
+          >
+            <Home
+              size={20}
+              className="text-nature-700 group-hover:text-nature-900"
+            />
+          </button>
           <div className="w-12 h-12 bg-nature-900 text-white rounded-2xl flex items-center justify-center shadow-lg rotate-3">
             <TreePine size={28} />
           </div>
@@ -12635,6 +12650,11 @@ await genie.simulate({
       </motion.button>
 
       <Toaster position="bottom-right" />
+
+      <AnimatePresence>
+        {showVideo && <WelcomeVideo onClose={closeVideo} />}
+      </AnimatePresence>
+
       <ConfigDialog
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}

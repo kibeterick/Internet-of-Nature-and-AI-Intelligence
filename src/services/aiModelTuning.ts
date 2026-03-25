@@ -115,7 +115,7 @@ export async function finetuneModel(
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const trainingPrompt = `You are an AI model trainer for ecological prediction systems. 
     
@@ -183,7 +183,7 @@ export async function generatePredictionWithConfidence(sensorData: {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const predictionPrompt = `Based on these ecosystem sensor readings, predict the ecosystem status:
 
