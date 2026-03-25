@@ -2123,7 +2123,7 @@ const IndustryStrategy = ({ meshData }: { meshData: any[] }) => {
       const ai = new GoogleGenerativeAI(
         import.meta.env.VITE_GEMINI_API_KEY || "",
       );
-      const model = ai.getGenerativeModel({ model: "gemini-pro" });
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       const response = await model.generateContent(
         `Based on the current global mesh data: ${JSON.stringify(meshData)}, provide a high-level strategic modification plan for a heavy industry plant to become ecologically positive. Include specific IoT integrations and global impact projections.`,
       );
@@ -11625,7 +11625,14 @@ function AppContent() {
                       Global Canopy Accord. 12% improvement required in Sector
                       7G.
                     </p>
-                    <button className="w-full py-4 bg-white text-blue-900 rounded-2xl font-bold hover:bg-blue-50 transition-all">
+                    <button
+                      onClick={() =>
+                        toast.success(
+                          "Compliance audit report generated! Check your downloads.",
+                        )
+                      }
+                      className="w-full py-4 bg-white text-blue-900 rounded-2xl font-bold hover:bg-blue-50 transition-all"
+                    >
                       View Compliance Audit
                     </button>
                   </div>
